@@ -9,4 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Create the documentation issues
-      uses: actions/godocit@v1
+      uses: actions/godocit-testing@v1
