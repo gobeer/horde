@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Create the documentation issues
-      uses: gobeer/godocit@v7
+      uses: gobeer/godocit@v8
       with:
         targetRepo: 'gobeer/alliance'
       env:
