@@ -9,7 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Create the documentation issues
-      uses: gobeer/godocit@v6
+      uses: gobeer/godocit@v7
+      with:
+        targetRepo: 'gobeer/alliance'
       env:
         PRIVATE_KEY: ${{ secrets.PrivateKey }}
+        INSTALLATION_ID: ${{ secrets.InstallationID }}
 
