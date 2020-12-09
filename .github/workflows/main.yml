@@ -1,18 +1,48 @@
-name: CI
-
-on: 
-  pull_request:
-    types: [labeled]
-
+name: release
+on:
+  push:
+    tags:
+      - "*"
 jobs:
-  build:
+  build-release:
+    name: Build & Release
     runs-on: ubuntu-latest
     steps:
-    - name: Create the documentation issues
-      uses: gobeer/godocit@v9
-      with:
-        targetRepo: 'gobeer/alliance'
-      env:
-        PRIVATE_KEY: ${{ secrets.PrivateKey }}
-        INSTALLATION_ID: ${{ secrets.InstallationID }}
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
 
+      - name: Get commits history
+        run: |
+        echo "PREVIOUS_TAG=$(git describe --abbrev=0 \
+          --tags `git rev-list --tags --skip=1 --max-count=1`)" >> $GITHUB_ENV
+
+        echo "PR_HISTORY=$(git log --abbrev-commit --grep="#" \
+          --pretty=tformat:"%s\n" master...$PREVIOUS_TAG | awk '{$1=$1};1')" >> $GITHUB_ENV
+
+        echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            _$DATE_
+
+            - [Changelog since $PREVIOUS_TAG](#changes-since-v001)
+            - [Documentation for ${{ github.ref }}](#documentation-for-v002-beta)
+
+            ## Documentation for ${{ github.ref }}
+
+            [Documentation](https://example.com/docs)
+
+            [Examples](https://example.com/examples)
+
+            ## Changes since $PREVIOUS_TAG
+
+            $PR_HISTORY
+          draft: false
+          prerelease: false
