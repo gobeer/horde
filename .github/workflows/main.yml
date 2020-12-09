@@ -17,7 +17,7 @@ jobs:
           --tags `git rev-list --tags --skip=1 --max-count=1`)" >> $GITHUB_ENV
 
         echo "PR_HISTORY=$(git log --abbrev-commit --grep="#" \
-          --pretty=tformat:"%s\n" master...${PREVIOUS_TAG} | awk '{$1=$1};1')" >> $GITHUB_ENV
+          --pretty=tformat:"%s\n" master...$($PREVIOUS_TAG) | awk '{$1=$1};1')" >> $GITHUB_ENV
 
         echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
