@@ -15,6 +15,7 @@ jobs:
         run: |
           echo "PREVIOUS_TAG=$(git describe --abbrev=0 \
             --tags `git rev-list --tags --skip=1 --max-count=1`)" >> $GITHUB_ENV
+          echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
           echo "PR_HISTORY=$(git log --abbrev-commit --grep='#' \
             --pretty=tformat:'%s\n' master...$PREVIOUS_TAG | awk '{$1=$1};1')" >> $GITHUB_ENV
@@ -28,21 +29,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: Release ${{ env.RELEASE_TAG }}
           body: |
             _$DATE_
 
-            - [Changelog since $PREVIOUS_TAG](#changes-since-v001)
-            - [Documentation for ${{ github.ref }}](#documentation-for-v002-beta)
+            - [Changelog since ${{ env.PREVIOUS_TAG}}](#changes-since-v001)
+            - [Documentation for ${{ env.RELEASE_TAG }}](#documentation-for-v002-beta)
 
-            ## Documentation for ${{ github.ref }}
+            ## Documentation for ${{ env.RELEASE_TAG }}
 
             [Documentation](https://example.com/docs)
 
             [Examples](https://example.com/examples)
 
-            ## Changes since $PREVIOUS_TAG
+            ## Changes since ${{ env.PREVIOUS_TAG}}
 
-            $PR_HISTORY
+            ${{ env.PR_HISTORY }}
           draft: false
           prerelease: false
