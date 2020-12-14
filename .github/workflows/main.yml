@@ -15,13 +15,13 @@ jobs:
         # Set the PREVIOUS_TAG both on the current step and action env context
         run: |
           export PREVIOUS_TAG=$(git describe --abbrev=0 \
-            --tags `git rev-list --tags --skip=1 --max-count=1`) && \
+            --tags `git rev-list --tags --skip=2 --max-count=1`) && \
             echo "PREVIOUS_TAG=${PREVIOUS_TAG}" >> $GITHUB_ENV
 
           echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
           echo "PR_HISTORY=$(git log --abbrev-commit --grep='#' \
-            --pretty=tformat:'%s\n' master...${PREVIOUS_TAG} | awk '{$1=$1};1')" >> $GITHUB_ENV
+            --pretty=tformat:'%s%n' master...${PREVIOUS_TAG} | awk '{$1=$1};1')" >> $GITHUB_ENV
 
           echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
@@ -34,7 +34,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ env.RELEASE_TAG }}
           body: |
-            _$DATE_
+            _${{ env.DATE }}_
 
             - [Changelog since ${{ env.PREVIOUS_TAG}}](#changes-since-v001)
             - [Documentation for ${{ env.RELEASE_TAG }}](#documentation-for-v002-beta)
