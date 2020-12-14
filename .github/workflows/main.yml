@@ -14,6 +14,8 @@ jobs:
       - name: Get commits history
         # Set the PREVIOUS_TAG both on the current step and action env context
         run: |
+          echo $(pwd)
+          echo $(ls)
           echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
           export PREVIOUS_TAG=$(git describe --abbrev=0 ${GITHUB_REF#refs/*/}^) && \
