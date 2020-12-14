@@ -16,6 +16,7 @@ jobs:
         run: |
           echo $(pwd)
           echo $(ls)
+          echo $(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=10))
           echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
           export PREVIOUS_TAG=$(git describe --abbrev=0 "${GITHUB_REF#refs/*/}^") && \
