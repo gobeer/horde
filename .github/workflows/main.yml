@@ -14,19 +14,11 @@ jobs:
       - name: Get commits history
         # Set the PREVIOUS_TAG both on the current step and action env context
         run: |
-          echo git rev-list --tags --skip=0 --max-count=1
-          echo git rev-list --tags --skip=1 --max-count=1
-          echo git rev-list --tags --skip=2 --max-count=1
-          echo git rev-list --tags --skip=3 --max-count=1
-          echo git rev-list --tags --skip=4 --max-count=1
-          echo $(git describe --abbrev=0 \
-            --tags $(git rev-list --tags --skip=1 --max-count=1))
+          echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-          export PREVIOUS_TAG=$(git describe --abbrev=0 \
-            --tags $(git rev-list --tags --skip=2 --max-count=1)) && \
+          export PREVIOUS_TAG=$(git describe --abbrev=0 ${GITHUB_REF#refs/*/}^) && \
             echo "PREVIOUS_TAG=${PREVIOUS_TAG}" >> $GITHUB_ENV
 
-          echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
           echo "PR_HISTORY=$(git log --abbrev-commit --grep='#' \
             --pretty=tformat:'%s%n' master...${PREVIOUS_TAG} | awk '{$1=$1};1')" >> $GITHUB_ENV
