@@ -15,7 +15,7 @@ jobs:
         # Set the PREVIOUS_TAG both on the current step and action env context
         run: |
           export PREVIOUS_TAG=$(git describe --abbrev=0 \
-            --tags `git rev-list --tags --skip=2 --max-count=1`) && \
+            --tags $(git rev-list --tags --skip=2 --max-count=1)) && \
             echo "PREVIOUS_TAG=${PREVIOUS_TAG}" >> $GITHUB_ENV
 
           echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
