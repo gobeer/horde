@@ -19,6 +19,8 @@ jobs:
             -H 'Accept: application/json' https://api.github.com/repos/gobeer/horde/tags | jq -r '.[0].name')
           export API_TAG=$(cat ./package.json | jq -r '.version')
           echo $(if [ "$API_TAG" = "$RELEASE_TAG" ]; then echo "UPGRADEABLE=true"; else echo "UPGRADEABLE=false"; fi) >> $GITHUB_ENV
+          cat $GITHUB_ENV
+          echo $GITHUB_ENV
 
       - name: Update and Commit files
         if: ${{ env.UPGRADEABLE == 'true' }}
