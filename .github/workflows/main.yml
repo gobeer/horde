@@ -1,55 +1,35 @@
-name: release
+name: Bump "package.json" Version
+
 on:
-  push:
-    tags:
-      - "*"
+  release:
+    types: [prereleased, released, published]
+
 jobs:
-  build-release:
-    name: Build & Release
+  version-bump:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-
-      - name: Get commits history
-        # Set the PREVIOUS_TAG both on the current step and action env context
-        run: |
-          echo $(pwd)
-          echo $(ls)
-          echo $(git describe --abbrev=0 --tags $(git rev-list --tags --max-count=10))
-          echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
-          export PREVIOUS_TAG=$(git describe --abbrev=0 "${GITHUB_REF#refs/*/}^") && \
-            echo "PREVIOUS_TAG=${PREVIOUS_TAG}" >> $GITHUB_ENV
-
-
-          echo "PR_HISTORY=$(git log --abbrev-commit --grep='#' \
-            --pretty=tformat:'%s%n' master...${PREVIOUS_TAG} | awk '{$1=$1};1')" >> $GITHUB_ENV
-
-          echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      - uses: actions/checkout@master
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ env.RELEASE_TAG }}
-          body: |
-            _${{ env.DATE }}_
+          persist-credentials: true
+          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+      - name: Get the last API TAG and current version in package.json
+        run: |
+          export RELEASE_TAG=$(curl -sS -X GET -G \
+            -d max=300 \
+            -H 'Accept: application/json' https://api.github.com/repos/shocknet/api/tags | jq -r '.[0].name')
+          export API_TAG=$(cat ./package.json | jq -r '.version')
+          echo $(if [ "$API_TAG" = "$RELEASE_TAG" ]; then echo "UPGRADEABLE=true"; else echo "UPGRADEABLE=false"; fi) >> $GITHUB_ENV
 
-            - [Changelog since ${{ env.PREVIOUS_TAG}}](#changes-since-v001)
-            - [Documentation for ${{ env.RELEASE_TAG }}](#documentation-for-v002-beta)
-
-            ## Documentation for ${{ env.RELEASE_TAG }}
-
-            [Documentation](https://example.com/docs)
-
-            [Examples](https://example.com/examples)
-
-            ## Changes since ${{ env.PREVIOUS_TAG}}
-
-            ${{ env.PR_HISTORY }}
-          draft: false
-          prerelease: false
+      - name: Update and Commit files
+        if: ${{ env.UPGRADEABLE == 'true' }}
+        run: |
+          echo $(cat ./package.json | jq -r --arg API_TAG "$API_TAG" '.version = $API_TAG') > package.json
+          git config --local user.email "actions@shock.network"
+          git config --local user.name "Version Update Action"
+          git commit -m "version upgraded to ${API_TAG}" -a
+      - name: Push changes
+        if: ${{ env.UPGRADEABLE == 'true' }}
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master

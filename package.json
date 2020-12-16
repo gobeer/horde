@@ -1,0 +1,20 @@
+{
+  "name": "horde",
+  "version": "1.0.0",
+  "description": "Change 19",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gobeer/horde.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gobeer/horde/issues"
+  },
+  "homepage": "https://github.com/gobeer/horde#readme"
+}
