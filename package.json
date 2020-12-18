@@ -1,6 +1,6 @@
 {
   "name": "horde",
-  "version": "1.0.0",
+  "version": "v0.0.19",
   "description": "Change 19",
   "main": "index.js",
   "scripts": {
